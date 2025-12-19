@@ -4,14 +4,14 @@ import { createScorer } from '@mastra/core/scores';
 
 // 1. Tool Call Accuracy Scorer
 // Matches the baseline pattern using createToolCallAccuracyScorerCode
-export const toolCallAppropriatenessScorer = createToolCallAccuracyScorerCode({
+export const promotiontoolCallAppropriatenessScorer = createToolCallAccuracyScorerCode({
   expectedTool: 'create-promotion-link',
   strictMode: false,
 });
 
 // 2. Completeness Scorer
 // Uses the standard Mastra implementation
-export const completenessScorer = createCompletenessScorer();
+export const promotioncompletenessScorer = createCompletenessScorer();
 
 // 3. Custom LLM-judged Scorer: Promotion Creation Quality
 // Evaluates if the agent collected all required fields before calling the tool
@@ -76,8 +76,8 @@ export const promotionCreationScorer = createScorer({
     return `Promotion Scoring: Fields=${r.allFieldsPresent}, Discount Logic=${r.mutuallyExclusiveDiscountValid}. Final Score=${score}. ${r.explanation}`;
   });
 
-export const scorers = {
-  toolCallAppropriatenessScorer,
-  completenessScorer,
+export const promotionScorers = {
+  promotiontoolCallAppropriatenessScorer,
+  promotioncompletenessScorer,
   promotionCreationScorer,
 };
