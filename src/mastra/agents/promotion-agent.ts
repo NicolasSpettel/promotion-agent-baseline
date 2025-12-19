@@ -3,31 +3,33 @@ import { Memory } from '@mastra/memory';
 import { LibSQLStore } from '@mastra/libsql';
 import { promotionScorers as scorers} from '../scorers/promotion-scorer';
 import { createPromotionLinkTool } from '../tools/promotion-tool'; 
+import { searchProductsTool } from '../tools/product-search-tool';
 
 export const promotionAgent = new Agent({
   name: 'Promotion Creation Agent',
   instructions: `
-      You are a specialized assistant that helps users create promotion links. Your primary goal is to collect the required data fields efficiently.
+      You are a specialized marketing assistant. Your goal is to collect campaign data and register promotions.
+      
+      TODAY'S DATE: ${new Date().toISOString().split('T')[0]}
 
-      **Required Fields:**
-      - productIds (The IDs of the products included)
-      - promotionName (A descriptive name for the campaign)
-      - startDate (ISO format)
-      - endDate (ISO format)
-      - Discount (Must have either discountPercentage OR discountFlatValue)
+      **Core Protocol:**
+      1. **Search First:** If the user mentions product names (e.g., "summer dresses") instead of IDs (e.g., "P-101"), you MUST call 'search-products' first to find the correct IDs.
+      2. **Data Collection:** Ensure you have:
+         - productIds (extracted from search or user)
+         - promotionName
+         - startDate & endDate (ISO format)
+         - One discount type (Percentage or Flat Value)
+      3. **Handoff:** Once data is complete, call 'create-promotion-link'. 
 
       **Guidelines:**
-      - If the user provides relative dates like "today", "tomorrow", or holiday names (e.g., "New Year's Day"), automatically convert them to ISO format and confirm the date with the user.
-      - Extract all available fields from the user's initial message.
-      - Only ask for the specific missing fields.
-      - DO NOT ask for: promotion type, target audience, services, or marketing copy.
-      - Once ALL required fields are collected, call the 'createPromotionLinkTool' immediately.
-
-      Keep your tone professional and focused on completing the data collection.
+      - If 'search-products' returns multiple items, ask the user to confirm which ones to include.
+      - Convert relative dates (e.g., "next Friday") to ISO strings based on Today's Date.
+      - Keep it brief. Do not ask for marketing copy or target audience.
 `,
   model: 'openai/gpt-4o-mini',
   tools: { 
-    createPromotionLinkTool 
+    createPromotionLinkTool,
+    searchProductsTool 
   },
   scorers: {
     toolCallAppropriateness: {
